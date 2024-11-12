@@ -6,4 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\NH_Sys_Domain\NH_Sys_Domain.csproj" />
+    <ProjectReference Include="..\NH_Sys_Infrastructure\NH_Sys_Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>
