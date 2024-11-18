@@ -32,7 +32,7 @@ namespace NH_Sys_Application.Services.Product
             // Actualizar solo las propiedades necesarias
             currentProduct.Descripcion = productoDto.Descripcion;
             currentProduct.Precio = productoDto.Precio;
-            currentProduct.Nombre = productoDto.Nombre;
+            currentProduct.Nombre = productoDto.NombreProducto;
 
             // Ejecutar la actualización y devolver el éxito
             return await _repository.Update(currentProduct);

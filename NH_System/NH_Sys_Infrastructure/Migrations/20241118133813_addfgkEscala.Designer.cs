@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NH_Sys_Infrastructure.Data;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NH_Sys_Infrastructure.Migrations
 {
     [DbContext(typeof(DbDevContext))]
-    partial class DbDevContextModelSnapshot : ModelSnapshot
+    [Migration("20241118133813_addfgkEscala")]
+    partial class addfgkEscala
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -288,7 +291,7 @@ namespace NH_Sys_Infrastructure.Migrations
                     b.Property<bool>("DescuentoAplicable")
                         .HasColumnType("boolean");
 
-                    b.Property<int>("EscalaId")
+                    b.Property<int?>("EscalaIdEscala")
                         .HasColumnType("integer");
 
                     b.Property<string>("EscalaNombre")
@@ -298,13 +301,19 @@ namespace NH_Sys_Infrastructure.Migrations
                     b.Property<long>("IdCategoriaProducto")
                         .HasColumnType("bigint");
 
+                    b.Property<int>("IdEscala")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("IdMarca")
+                        .HasColumnType("integer");
+
                     b.Property<long>("IdProveedor")
                         .HasColumnType("bigint");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
-                    b.Property<int>("MarcaId")
+                    b.Property<int?>("MarcaIdMarca")
                         .HasColumnType("integer");
 
                     b.Property<string>("MarcaNombre")
@@ -329,13 +338,13 @@ namespace NH_Sys_Infrastructure.Migrations
                     b.HasKey("IdProducto")
                         .HasName("productos_pkey");
 
-                    b.HasIndex("EscalaId");
+                    b.HasIndex("EscalaIdEscala");
 
                     b.HasIndex("IdCategoriaProducto");
 
                     b.HasIndex("IdProveedor");
 
-                    b.HasIndex("MarcaId");
+                    b.HasIndex("MarcaIdMarca");
 
                     b.ToTable("productos_tb", (string)null);
                 });
@@ -480,9 +489,7 @@ namespace NH_Sys_Infrastructure.Migrations
                 {
                     b.HasOne("NH_Sys_Domain.Entities.EscalaProducto", "Escala")
                         .WithMany("Productos")
-                        .HasForeignKey("EscalaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("EscalaIdEscala");
 
                     b.HasOne("NH_Sys_Domain.Entities.CategoriaProducto", "CategoriaProducto")
                         .WithMany("Productos")
@@ -498,9 +505,7 @@ namespace NH_Sys_Infrastructure.Migrations
 
                     b.HasOne("NH_Sys_Domain.Entities.MarcaProducto", "Marca")
                         .WithMany("Productos")
-                        .HasForeignKey("MarcaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("MarcaIdMarca");
 
                     b.Navigation("CategoriaProducto");
 

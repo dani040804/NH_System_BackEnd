@@ -58,10 +58,18 @@ namespace Muscle_Designer_Data.Repository
 
         public async  Task<IEnumerable<T>> GetAll()
         {
-            return await _dbSet.ToListAsync();
+            var entities = await _dbSet.ToListAsync();
+            if (entities == null) return Enumerable.Empty<T>();
+            else
+                return entities;
         }
 
         public async Task<T> GetById(long id)
+        {
+            return await _dbSet.FindAsync(id);
+        }
+
+        public async Task<T> GetByIdInt(int id)
         {
             return await _dbSet.FindAsync(id);
         }

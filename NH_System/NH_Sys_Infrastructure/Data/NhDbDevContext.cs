@@ -1,19 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using NH_Sys_Domain.Entities;
 
 namespace NH_Sys_Infrastructure.Data;
 
 public partial class DbDevContext : DbContext
 {
+
+    private readonly IConfiguration _conf;
+
     public DbDevContext()
     {
+
     }
 
-    public DbDevContext(DbContextOptions<DbDevContext> options)
+    public DbDevContext(DbContextOptions<DbDevContext> options, IConfiguration conf)
         : base(options)
     {
+        _conf = conf;
     }
 
     public virtual DbSet<ClientesTb> ClientesTbs { get; set; }
@@ -30,9 +36,25 @@ public partial class DbDevContext : DbContext
 
     public virtual DbSet<UsuariosTb> UsuariosTbs { get; set; }
 
+    public virtual DbSet<Proveedor> Proveedores { get; set; }
+
+    public virtual DbSet<CategoriaProducto> CategoriaProductos { get; set; }
+    public virtual DbSet<MarcaProducto> MarcaProductos { get; set; }
+    public virtual DbSet<EscalaProducto> EscalaProductos { get; set; }
+
+
+
+
+
+
+
+    public DbSet<MovimientoInventario> MovimientosInventario { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseNpgsql("Host=localhost;Database=NH_DB_Dev;Username=danieladmin;Password=JDvo0408.");
+    {
+        var connectionString = _conf.GetConnectionString("DB_PSQL");
+        optionsBuilder.UseNpgsql(connectionString);
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -167,6 +189,15 @@ public partial class DbDevContext : DbContext
             entity.Property(e => e.NombreUsuario).HasColumnName("nombre_usuario");
             entity.Property(e => e.Rol).HasColumnName("rol");
         });
+
+        // MovimientoInventario
+        modelBuilder.Entity<MovimientoInventario>()
+            .HasKey(mi => mi.IdMovimiento);
+
+        modelBuilder.Entity<MovimientoInventario>()
+            .HasOne(mi => mi.Producto)
+            .WithMany(p => p.MovimientosInventario)
+            .HasForeignKey(mi => mi.IdProducto);
 
         OnModelCreatingPartial(modelBuilder);
     }

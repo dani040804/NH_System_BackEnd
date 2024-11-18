@@ -53,6 +53,14 @@ namespace NH_Sys_Infrastructure.Repository
             return  await _dbSet.FindAsync(id);
         }
 
+        public async Task<Producto> GetByIdInt(int id)
+        {
+
+            return await _dbSet.FindAsync(id);
+        }
+
+
+
         public Task<IEnumerable<Producto>> GetProductsBySupplier()
         {
             throw new NotImplementedException();

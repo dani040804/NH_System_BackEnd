@@ -15,10 +15,28 @@ namespace NH_Sys_Application.Services.Product
     {
 
         private readonly IRepositoryGeneric<Producto> _repository;
+        private readonly IRepositoryGeneric<MarcaProducto> _marcaRepository;
+        private readonly IRepositoryGeneric<EscalaProducto> _escalaRepository;
+        private readonly IRepositoryGeneric<Proveedor> _proveedorRepository;
+        private readonly IRepositoryGeneric<CategoriaProducto> _catRepository;
 
-        public GetProductsService( IRepositoryGeneric<Producto> repository)
+
+        private readonly IInventoryService _inventarioService;
+
+
+        public GetProductsService( IRepositoryGeneric<Producto> repository,
+            IInventoryService inventarioService, 
+            IRepositoryGeneric<MarcaProducto> marcaRepository,
+            IRepositoryGeneric<EscalaProducto> escalaRepository,
+            IRepositoryGeneric<Proveedor> proveedorRepository,
+            IRepositoryGeneric<CategoriaProducto> catRepository)
         {
             _repository = repository;
+            _inventarioService = inventarioService;
+            _marcaRepository = marcaRepository;
+            _escalaRepository = escalaRepository;
+            _proveedorRepository = proveedorRepository;
+            _catRepository = catRepository;
         }
 
         public async Task<ProductoDto> GetProductById(long id)
@@ -36,7 +54,7 @@ namespace NH_Sys_Application.Services.Product
             return new ProductoDto
             {
                 IdProducto = product.IdProducto,
-                Nombre = product.Nombre,
+                NombreProducto = product.Nombre,
                 Descripcion = product.Descripcion,
                 CodigoProducto = product.CodigoProducto,
                 Precio = product.Precio
@@ -55,18 +73,64 @@ namespace NH_Sys_Application.Services.Product
 
             foreach (var product in products) 
             {
+                var stock = await _inventarioService.ConsultarStock(product.IdProducto);
+
                 var productDto = new ProductoDto()
                 {
                     IdProducto = product.IdProducto,
-                    Nombre = product.Nombre,
                     CodigoProducto = product.CodigoProducto,
+                    NombreProducto = product.Nombre,
+                    Marca = product.MarcaNombre,
+                    Escala = product.EscalaNombre,
                     Precio = product.Precio,
-                    Descripcion = product.Descripcion
+                    PrecioDistribuidor = product.PrecioDistribuidor,
+                    PrecioCosto = product.PrecioCosto,
+                    CantidadStock = stock,
+                    DescuentoAplicable = product.DescuentoAplicable
+
+
+                    
                 };
                 productsDto.Add(productDto);
             }
             return productsDto;
 
         }
+    
+        public async Task<IEnumerable<MarcaProducto>> GetMarcas()
+        {
+            var marcas = await _marcaRepository.GetAll();
+
+            if (marcas == null) throw new KeyNotFoundException("No se encontraron marcas");
+
+            return marcas;
+        }
+
+        public async Task<IEnumerable<EscalaProducto>> GetEscalas()
+        {
+            var escala = await _escalaRepository.GetAll();
+
+            if (escala == null) throw new KeyNotFoundException("No se encontraron marcas");
+
+            return escala;
+        }
+        public async Task<IEnumerable<Proveedor>> GetProveedores()
+        {
+            var proveedor = await _proveedorRepository.GetAll();
+
+            if (proveedor == null) throw new KeyNotFoundException("No se encontraron marcas");
+
+            return proveedor;
+        }
+        public async Task<IEnumerable<CategoriaProducto>> GetCategorias()
+        {
+            var cat = await _catRepository.GetAll();
+
+            if (cat == null) throw new KeyNotFoundException("No se encontraron marcas");
+
+            return cat;
+        }
+
+
     }
 }

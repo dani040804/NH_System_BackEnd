@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NH_Sys_Application.ServiceInterfaces.Product;
@@ -15,15 +11,16 @@ namespace NH_Sys_Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductosController : ControllerBase
+    public class ProductoController : ControllerBase
     {
+
         private readonly DbDevContext _context;
         private readonly IAddProductService _addProductService;
         private readonly IGetProductsService _getProductsService;
-        private readonly IProductRepository _productRepository; 
+        private readonly IProductRepository _productRepository;
         private readonly IUpdateProductService _updateProductService;
 
-        public ProductosController(DbDevContext context, IAddProductService addProductService, IGetProductsService getProductsService, IProductRepository productRepository, IUpdateProductService updateProductService)
+        public ProductoController(DbDevContext context, IAddProductService addProductService, IGetProductsService getProductsService, IProductRepository productRepository, IUpdateProductService updateProductService)
         {
             _context = context;
             _addProductService = addProductService;
@@ -31,7 +28,92 @@ namespace NH_Sys_Api.Controllers
             _updateProductService = updateProductService;
         }
 
-        // GET: api/Productos
+
+        [HttpGet]
+        [Route("Marcas")]
+        public async Task<ActionResult<IEnumerable<ProductoDto>>> GetMarcas()
+        {
+            try
+            {
+                var marcas = await _getProductsService.GetMarcas();
+                return Ok(marcas);
+            }
+            catch (KeyNotFoundException ex)
+            {
+
+                return NotFound(new { mensaje = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                // Manejo de excepciones generales
+                return StatusCode(500, new { mensaje = "Ocurrió un error en el servidor.", detalle = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        [Route("Escalas")]
+        public async Task<ActionResult<IEnumerable<ProductoDto>>> GetEscalas()
+        {
+            try
+            {
+                var escalas = await _getProductsService.GetEscalas();
+                return Ok(escalas);
+            }
+            catch (KeyNotFoundException ex)
+            {
+
+                return NotFound(new { mensaje = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                // Manejo de excepciones generales
+                return StatusCode(500, new { mensaje = "Ocurrió un error en el servidor.", detalle = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        [Route("Categorias")]
+        public async Task<ActionResult<IEnumerable<ProductoDto>>> GetCategorias()
+        {
+            try
+            {
+                var categorias = await _getProductsService.GetCategorias();
+                return Ok(categorias);
+            }
+            catch (KeyNotFoundException ex)
+            {
+
+                return NotFound(new { mensaje = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                // Manejo de excepciones generales
+                return StatusCode(500, new { mensaje = "Ocurrió un error en el servidor.", detalle = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        [Route("Proveedores")]
+        public async Task<ActionResult<IEnumerable<ProductoDto>>> GetProveedores()
+        {
+            try
+            {
+                var proveedores = await _getProductsService.GetProveedores();
+                return Ok(proveedores);
+            }
+            catch (KeyNotFoundException ex)
+            {
+
+                return NotFound(new { mensaje = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                // Manejo de excepciones generales
+                return StatusCode(500, new { mensaje = "Ocurrió un error en el servidor.", detalle = ex.Message });
+            }
+        }
+
+
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProductoDto>>> GetProductos()
         {
@@ -42,7 +124,7 @@ namespace NH_Sys_Api.Controllers
             }
             catch (KeyNotFoundException ex)
             {
-                
+
                 return NotFound(new { mensaje = ex.Message });
             }
             catch (Exception ex)
@@ -76,7 +158,7 @@ namespace NH_Sys_Api.Controllers
                 // Manejo de excepciones generales
                 return StatusCode(500, new { mensaje = "Ocurrió un error en el servidor.", detalle = ex.Message });
             }
-            
+
         }
 
         // PUT: api/Productos/5
@@ -92,7 +174,7 @@ namespace NH_Sys_Api.Controllers
             try
             {
 
-                await _updateProductService.UpdateProduct(id,productDto);
+                await _updateProductService.UpdateProduct(id, productDto);
 
                 return Ok(new { codigo = 0, mensaje = "Cliente actualizado correctamente." });
             }
@@ -119,15 +201,23 @@ namespace NH_Sys_Api.Controllers
         // POST: api/Productos
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Producto>> PostProducto(ProductoDto producto)
+        public async Task<ActionResult> PostProducto(ProductoDto producto)
         {
-            if(producto == null) { return BadRequest(); }
+            if (producto == null) { return BadRequest(); }
 
-            var result = await _addProductService.CreateProducto(producto);
-            
-            if(result == null) return BadRequest();
+            try
+            {
+                bool result = await _addProductService.CreateProducto(producto);
 
-            return result;
+                if (result) return Created();
+                else return BadRequest("No se puedo crear el producto");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+
+
         }
 
         // DELETE: api/Productos/5
@@ -148,11 +238,10 @@ namespace NH_Sys_Api.Controllers
 
 
         //PATCH: api/Clientes/DesactivarCliente/5
-        [HttpPatch("DesactivarCliente/{id}")]
+        [HttpPatch("DesactivarProducto/{id}")]
         public async Task<IActionResult> DesactivarCliente(long id)
         {
             var response = await _updateProductService.DeactivateProduct(id);
-
             return Ok(response);
         }
 
@@ -161,5 +250,7 @@ namespace NH_Sys_Api.Controllers
         {
             return _context.Productos.Any(e => e.IdProducto == id);
         }
+
+
     }
 }

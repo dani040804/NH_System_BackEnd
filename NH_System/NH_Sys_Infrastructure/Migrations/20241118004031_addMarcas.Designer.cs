@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NH_Sys_Infrastructure.Migrations
 {
     [DbContext(typeof(DbDevContext))]
-    [Migration("20241112214831_add_IsActive_Producto")]
-    partial class add_IsActive_Producto
+    [Migration("20241118004031_addMarcas")]
+    partial class addMarcas
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,27 @@ namespace NH_Sys_Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("NH_Sys_Domain.Entities.CategoriaProducto", b =>
+                {
+                    b.Property<long>("IdCategoriaProducto")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("IdCategoriaProducto"));
+
+                    b.Property<string>("DescripcionCategoria")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("NombreCategoriaProducto")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("IdCategoriaProducto");
+
+                    b.ToTable("CategoriaProductos");
+                });
 
             modelBuilder.Entity("NH_Sys_Domain.Entities.ClientesTb", b =>
                 {
@@ -159,6 +180,9 @@ namespace NH_Sys_Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("cantidad");
 
+                    b.Property<DateTime>("FechaActualizacion")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<long?>("ProductoId")
                         .HasColumnType("bigint")
                         .HasColumnName("producto_id");
@@ -173,6 +197,59 @@ namespace NH_Sys_Infrastructure.Migrations
                     b.HasIndex("ProductoId");
 
                     b.ToTable("inventario_tb", (string)null);
+                });
+
+            modelBuilder.Entity("NH_Sys_Domain.Entities.MarcaProducto", b =>
+                {
+                    b.Property<int>("IdMarca")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IdMarca"));
+
+                    b.Property<string>("NombreMarca")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("IdMarca");
+
+                    b.ToTable("MarcaProductos");
+                });
+
+            modelBuilder.Entity("NH_Sys_Domain.Entities.MovimientoInventario", b =>
+                {
+                    b.Property<long>("IdMovimiento")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("IdMovimiento"));
+
+                    b.Property<string>("Almacen")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Cantidad")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("FechaMovimiento")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("IdProducto")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Motivo")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TipoMovimiento")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("IdMovimiento");
+
+                    b.HasIndex("IdProducto");
+
+                    b.ToTable("MovimientosInventario");
                 });
 
             modelBuilder.Entity("NH_Sys_Domain.Entities.Producto", b =>
@@ -190,11 +267,29 @@ namespace NH_Sys_Infrastructure.Migrations
                         .HasColumnName("codigo_producto");
 
                     b.Property<string>("Descripcion")
+                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("descripcion");
 
+                    b.Property<bool>("DescuentoAplicable")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Escala")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("IdCategoriaProducto")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("IdProveedor")
+                        .HasColumnType("bigint");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("Marca")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
@@ -205,10 +300,37 @@ namespace NH_Sys_Infrastructure.Migrations
                         .HasColumnType("numeric")
                         .HasColumnName("precio");
 
+                    b.Property<decimal>("PrecioCosto")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("PrecioDistribuidor")
+                        .HasColumnType("numeric");
+
                     b.HasKey("IdProducto")
                         .HasName("productos_pkey");
 
+                    b.HasIndex("IdCategoriaProducto");
+
+                    b.HasIndex("IdProveedor");
+
                     b.ToTable("productos_tb", (string)null);
+                });
+
+            modelBuilder.Entity("NH_Sys_Domain.Entities.Proveedor", b =>
+                {
+                    b.Property<long>("IdProveedor")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("IdProveedor"));
+
+                    b.Property<string>("NombreProveedor")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("IdProveedor");
+
+                    b.ToTable("Proveedores");
                 });
 
             modelBuilder.Entity("NH_Sys_Domain.Entities.RecibosTb", b =>
@@ -319,6 +441,36 @@ namespace NH_Sys_Infrastructure.Migrations
                     b.Navigation("Producto");
                 });
 
+            modelBuilder.Entity("NH_Sys_Domain.Entities.MovimientoInventario", b =>
+                {
+                    b.HasOne("NH_Sys_Domain.Entities.Producto", "Producto")
+                        .WithMany("MovimientosInventario")
+                        .HasForeignKey("IdProducto")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Producto");
+                });
+
+            modelBuilder.Entity("NH_Sys_Domain.Entities.Producto", b =>
+                {
+                    b.HasOne("NH_Sys_Domain.Entities.CategoriaProducto", "CategoriaProducto")
+                        .WithMany("Productos")
+                        .HasForeignKey("IdCategoriaProducto")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NH_Sys_Domain.Entities.Proveedor", "Proveedor")
+                        .WithMany("Productos")
+                        .HasForeignKey("IdProveedor")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CategoriaProducto");
+
+                    b.Navigation("Proveedor");
+                });
+
             modelBuilder.Entity("NH_Sys_Domain.Entities.RecibosTb", b =>
                 {
                     b.HasOne("NH_Sys_Domain.Entities.FacturasTb", "Factura")
@@ -327,6 +479,11 @@ namespace NH_Sys_Infrastructure.Migrations
                         .HasConstraintName("recibos_factura_id_fkey");
 
                     b.Navigation("Factura");
+                });
+
+            modelBuilder.Entity("NH_Sys_Domain.Entities.CategoriaProducto", b =>
+                {
+                    b.Navigation("Productos");
                 });
 
             modelBuilder.Entity("NH_Sys_Domain.Entities.ClientesTb", b =>
@@ -346,6 +503,13 @@ namespace NH_Sys_Infrastructure.Migrations
                     b.Navigation("DetallefacturaTbs");
 
                     b.Navigation("InventarioTbs");
+
+                    b.Navigation("MovimientosInventario");
+                });
+
+            modelBuilder.Entity("NH_Sys_Domain.Entities.Proveedor", b =>
+                {
+                    b.Navigation("Productos");
                 });
 #pragma warning restore 612, 618
         }

@@ -23,4 +23,8 @@
     <ProjectReference Include="..\NH_Sys_Domain\NH_Sys_Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="DbContext\" />
+  </ItemGroup>
+
 </Project>

@@ -16,10 +16,8 @@ var connectionString = builder.Configuration.GetConnectionString("DB_PSQL");
 
 builder.Services.AddDbContext<DbDevContext>(options =>
     options.UseNpgsql(connectionString));
-
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -27,22 +25,30 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IAddProductService, AddProductService>();
 builder.Services.AddScoped<IGetProductsService, GetProductsService>();
 builder.Services.AddScoped<IUpdateProductService, UpdateProductService>();
+builder.Services.AddScoped<IInventoryService, InventoryService>();
+
 
 
 //Servicios para interfaces de Repositorios
 builder.Services.AddScoped(typeof(IRepositoryGeneric<>), typeof(Repository<>));
 builder.Services.AddScoped<IProductRepository,ProductRepository>();
+builder.Services.AddScoped<IInventoryRepository, InventoryRepository>();
+
+
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 
 
 var app = builder.Build();
 
+
+
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
+//if (app.Environment.IsDevelopment())
+//{
 	app.UseSwagger();
 	app.UseSwaggerUI();
-}
+//}
 
 app.UseHttpsRedirection();
 

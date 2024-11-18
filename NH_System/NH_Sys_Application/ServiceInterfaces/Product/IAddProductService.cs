@@ -10,6 +10,6 @@ namespace NH_Sys_Application.ServiceInterfaces.Product
 {
     public interface IAddProductService
     {
-        Task<Producto> CreateProducto(ProductoDto producto);
+        Task<bool> CreateProducto(ProductoDto producto);
     }
 }

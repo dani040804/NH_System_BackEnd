@@ -13,5 +13,7 @@ public partial class InventarioTb
 
     public string? Ubicacion { get; set; }
 
+    public DateTime FechaActualizacion { get; set; } = DateTime.UtcNow;
+
     public virtual Producto? Producto { get; set; }
 }
